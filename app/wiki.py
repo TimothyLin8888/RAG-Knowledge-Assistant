@@ -20,8 +20,6 @@ class Wiki:
         try:
             search_results = wikipedia.search(query, results=max_results)
             seen_titles = set()
-            self.texts.clear()
-            self.metadatas.clear()
 
             for title in search_results:
                 # Deduplicate titles
@@ -39,8 +37,8 @@ class Wiki:
                     chunk_size = 300
                     for i in range(0, len(words), chunk_size):
                         chunk_text = " ".join(words[i:i+chunk_size])
-                        self.texts.append(chunk_text)
-                        self.metadatas.append({"title": page.title, "url": url})
+                        self.text.append(chunk_text)
+                        self.metadata.append({"title": page.title, "url": url})
 
                 except wikipedia.DisambiguationError as e:
                     # Skip disambiguation pages
@@ -48,7 +46,7 @@ class Wiki:
                 except wikipedia.PageError as e:
                     continue
 
-            return [{"title": m["title"], "url": m["url"]} for m in self.metadatas]
+            # return [{"title": m["title"], "url": m["url"]} for m in self.metadata]
 
         except Exception as e:
             return [{"error": str(e)}]
@@ -62,6 +60,8 @@ class Wiki:
         self.index.add(vectors)
 
     def search_faiss_index(self, query: str, top_k: int = 5):
+        if self.index is None:
+            raise ValueError("FAISS index not built.")
         query_vector = self.embeddings.embed_query(query)
         query_vector = np.array([query_vector]).astype("float32")
 
@@ -77,13 +77,6 @@ class Wiki:
 
         return results
     
-    # def generate_embeddings(self, articles):
-    #     chunks = []
-    #     for article in articles:
-    #         content = article["content"]
-    #         embeddings = self.embeddings.embed_text(content)
-    #         chunks.append({"text": content, "embedding": embeddings})
-    #     return chunks
 
 if __name__ == "__main__":
     wiki = Wiki()
@@ -105,3 +98,15 @@ if __name__ == "__main__":
     print("\nSearch Results:")
     for result in search_results:
         print(f"Text: {result['text']}, Metadata: {result['metadata']}, Distance: {result['distance']}")
+
+
+    # def chunk_text(self, text: str, chunk_size: int = 600, overlap: int = 100):
+    #     chunks = []
+    #     start = 0
+
+    #     while start < len(text):
+    #         end = start + chunk_size
+    #         chunk = text[start:end]
+    #         chunks.append(chunk)
+    #         start += chunk_size - overlap
+    #     return chunks

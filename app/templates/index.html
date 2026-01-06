@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Knowledge Assistant</title>
+        <style>
+            pre {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>AI Knowledge Assistant</h1>
+
+    <form action="/ask" method="get">
+        <input type="text" name="query" placeholder="Ask a question..." size="60" required />
+        <button type="submit">Ask</button>
+    </form>
+
+    {% if error %}
+        <p style="color: red">{{ error }}</p>
+    {% endif %}
+
+    {% if answer %}
+        <h2>Generated Output:</h2>
+        <pre>{{ answer }}</pre>
+    {% endif %}
+
+    {% if sources %}
+        <h3>Sources:</h3>
+        <ul>
+            {% for source in sources %}
+                <li><a href="{{ source.url }}" target="_blank">{{ source.title }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    </body>
+</html>
